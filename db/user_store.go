@@ -13,6 +13,7 @@ const userColl = "users"
 
 type UserStore interface {
 	GetUserByID(context.Context, string) (*types.User, error)
+	GetUserByEmail(context.Context, string) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
 	CreateUser(context.Context, *types.User) (*types.User, error)
 	DeleteUser(context.Context, string) error
@@ -29,6 +30,17 @@ func NewMongoUserStore(client *mongo.Client) *MongoUserStore {
 		client: client,
 		coll:   client.Database(DBNAME).Collection(userColl),
 	}
+}
+
+func (s *MongoUserStore) GetUserByEmail(ctx context.Context, email string) (*types.User, error) {
+	res := s.coll.FindOne(ctx, bson.M{"email": email})
+
+	var user *types.User
+	if err := res.Decode(&user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (s *MongoUserStore) UpdateUser(ctx context.Context, filter bson.M, update types.UpdateUserParams) error {
