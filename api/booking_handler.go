@@ -71,6 +71,40 @@ func (h *BookingHandler) HandleBookRoom(c *fiber.Ctx) error {
 	return c.JSON(inserted)
 }
 
+func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
+	id := c.Params("id")
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	booking, err := h.store.BookingStore.GetBookingByID(c.Context(), oid)
+	if err != nil {
+		return err
+	}
+
+	userId, err := getAuthUserID(c)
+	if err != nil {
+		return err
+	}
+
+	if booking.UserID.Hex() != userId {
+		return c.Status(http.StatusUnauthorized).JSON(types.GenericResponse{
+			Type: "error",
+			Msg:  "not authorized",
+		})
+	}
+
+	if err := h.store.BookingStore.UpdateBooking(c.Context(), booking.ID.Hex(), bson.M{"$set": bson.M{"canceled": true}}); err != nil {
+		return err
+	}
+
+	return c.JSON(types.GenericResponse{
+		Type: "msg",
+		Msg:  "updated",
+	})
+}
+
 func (h *BookingHandler) HandleGetBookingByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	oid, err := primitive.ObjectIDFromHex(id)

@@ -14,6 +14,7 @@ type Booking struct {
 	NumPersons int                `bson:"numPersons" json:"numPersons"`
 	From       time.Time          `bson:"from" json:"from"`
 	To         time.Time          `bson:"to" json:"to"`
+	Canceled   bool               `bson:"canceled" json:"canceled"`
 }
 
 type BookRoomParams struct {
