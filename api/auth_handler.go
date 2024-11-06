@@ -23,18 +23,8 @@ func NewAuthHandler(store *db.Store) *AuthHandler {
 	}
 }
 
-type AuthParams struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type AuthResponse struct {
-	User  *types.User `json:"user"`
-	Token string      `json:"token"`
-}
-
 func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
-	var authParams AuthParams
+	var authParams types.AuthParams
 	if err := c.BodyParser(&authParams); err != nil {
 		return err
 	}
@@ -51,7 +41,7 @@ func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 		return fmt.Errorf("invalid credentials")
 	}
 
-	return c.JSON(AuthResponse{
+	return c.JSON(types.AuthResponse{
 		User:  user,
 		Token: createTokenFromUser(user),
 	})

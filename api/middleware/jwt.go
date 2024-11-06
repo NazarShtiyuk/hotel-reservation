@@ -27,6 +27,10 @@ func JWTAuthentication(c *fiber.Ctx) error {
 		return fmt.Errorf("token expired")
 	}
 
+	userID := claims["id"]
+
+	c.Context().SetUserValue("userID", userID)
+
 	return c.Next()
 }
 

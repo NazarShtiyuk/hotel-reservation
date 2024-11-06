@@ -33,8 +33,8 @@ func (h *HotelHandler) HandleGetHotelByID(c *fiber.Ctx) error {
 }
 
 func (h *HotelHandler) HandleGetRoomsFromHotelByID(c *fiber.Ctx) error {
-	hotelID := c.Params("hotelID")
-	oid, err := primitive.ObjectIDFromHex(hotelID)
+	id := c.Params("id")
+	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return err
 	}
