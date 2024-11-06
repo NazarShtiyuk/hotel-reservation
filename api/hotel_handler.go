@@ -25,7 +25,7 @@ func (h *HotelHandler) HandleGetHotelByID(c *fiber.Ctx) error {
 	hotel, err := h.store.HotelStore.GetHotelByID(c.Context(), id)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return c.JSON(map[string]string{"msg": "not found"})
+			return ErrNotFound("hotel")
 		}
 	}
 
@@ -36,12 +36,12 @@ func (h *HotelHandler) HandleGetRoomsFromHotelByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return err
+		return ErrInvalidID()
 	}
 	filter := bson.M{"hotelID": oid}
 	rooms, err := h.store.RoomStore.GetRooms(c.Context(), filter)
 	if err != nil {
-		return err
+		return ErrNotFound("rooms")
 	}
 
 	return c.JSON(rooms)
@@ -50,7 +50,7 @@ func (h *HotelHandler) HandleGetRoomsFromHotelByID(c *fiber.Ctx) error {
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
 	hotels, err := h.store.HotelStore.GetHotels(c.Context(), nil)
 	if err != nil {
-		return err
+		return ErrNotFound("hotels")
 	}
 
 	return c.JSON(hotels)

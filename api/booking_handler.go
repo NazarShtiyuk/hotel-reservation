@@ -25,11 +25,11 @@ func NewBookingHandler(store *db.Store) *BookingHandler {
 func (h *BookingHandler) HandleBookRoom(c *fiber.Ctx) error {
 	var params types.BookRoomParams
 	if err := c.BodyParser(&params); err != nil {
-		return err
+		return ErrBadRequest()
 	}
 
 	if err := params.Validate(); err != nil {
-		return err
+		return ErrBadRequest()
 	}
 
 	roomID := c.Params("id")
@@ -75,12 +75,12 @@ func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
 	id := c.Params("id")
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return err
+		return ErrInvalidID()
 	}
 
 	booking, err := h.store.BookingStore.GetBookingByID(c.Context(), oid)
 	if err != nil {
-		return err
+		return ErrNotFound("booking")
 	}
 
 	userId, err := getAuthUserID(c)
@@ -109,7 +109,7 @@ func (h *BookingHandler) HandleGetBookingByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return err
+		return ErrInvalidID()
 	}
 
 	booking, err := h.store.BookingStore.GetBookingByID(c.Context(), oid)
@@ -123,7 +123,7 @@ func (h *BookingHandler) HandleGetBookingByID(c *fiber.Ctx) error {
 func (h *BookingHandler) HandleGetBookings(c *fiber.Ctx) error {
 	bookings, err := h.store.BookingStore.GetBookings(c.Context(), bson.M{})
 	if err != nil {
-		return err
+		return ErrNotFound("bookings")
 	}
 
 	return c.JSON(bookings)

@@ -20,7 +20,7 @@ func NewRoomHandler(store *db.Store) *RoomHandler {
 func (h *RoomHandler) HandleGetRooms(c *fiber.Ctx) error {
 	rooms, err := h.store.RoomStore.GetRooms(c.Context(), bson.M{})
 	if err != nil {
-		return err
+		return ErrNotFound("rooms")
 	}
 
 	return c.JSON(rooms)

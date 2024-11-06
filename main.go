@@ -7,7 +7,6 @@ import (
 	"log"
 
 	"github.com/NazarShtiyuk/hotel-reservation/api"
-	"github.com/NazarShtiyuk/hotel-reservation/api/middleware"
 	"github.com/NazarShtiyuk/hotel-reservation/db"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,9 +15,7 @@ import (
 )
 
 var config = fiber.Config{
-	ErrorHandler: func(c *fiber.Ctx, err error) error {
-		return c.JSON(map[string]string{"error": err.Error()})
-	},
+	ErrorHandler: api.ErrorHandler,
 }
 
 func main() {
@@ -37,8 +34,8 @@ func main() {
 		roomStore    = db.NewMongoRoomStore(client, hotelStore)
 		bookingStore = db.NewMongoBookingStore(client)
 		store        = db.Store{UserStore: userStore, HotelStore: hotelStore, RoomStore: roomStore, BookingStore: bookingStore}
-		apiv1        = app.Group("/api/v1", middleware.JWTAuthentication)
-		adminv1      = apiv1.Group("/admin", middleware.AdminAuth(&store))
+		apiv1        = app.Group("/api/v1", api.JWTAuthentication)
+		adminv1      = apiv1.Group("/admin", api.AdminAuth(&store))
 	)
 
 	userHandler := api.NewUserHandler(&store)
