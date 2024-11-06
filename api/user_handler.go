@@ -23,6 +23,7 @@ func NewUserHandler(store *db.Store) *UserHandler {
 
 func (h *UserHandler) HandleGetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
+
 	user, err := h.store.UserStore.GetUserByID(c.Context(), id)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {

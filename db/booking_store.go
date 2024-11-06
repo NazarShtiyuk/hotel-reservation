@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/NazarShtiyuk/hotel-reservation/types"
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,6 +14,7 @@ const bookingColl = "bookings"
 type BookingStore interface {
 	CreateBooking(context.Context, *types.Booking) (*types.Booking, error)
 	GetBookings(context.Context, bson.M) ([]*types.Booking, error)
+	GetBookingByID(context.Context, primitive.ObjectID) (*types.Booking, error)
 }
 
 type MongoBookingStore struct {
@@ -29,13 +29,22 @@ func NewMongoBookingStore(client *mongo.Client) *MongoBookingStore {
 	}
 }
 
+func (s *MongoBookingStore) GetBookingByID(ctx context.Context, id primitive.ObjectID) (*types.Booking, error) {
+	res := s.coll.FindOne(ctx, bson.M{"_id": id})
+
+	var booking *types.Booking
+	if err := res.Decode(&booking); err != nil {
+		return nil, err
+	}
+
+	return booking, nil
+}
+
 func (s *MongoBookingStore) GetBookings(ctx context.Context, filter bson.M) ([]*types.Booking, error) {
 	cur, err := s.coll.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(cur)
 
 	var bookings []*types.Booking
 	if err := cur.All(ctx, &bookings); err != nil {
